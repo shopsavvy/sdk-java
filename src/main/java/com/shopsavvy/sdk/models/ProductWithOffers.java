@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * Product details model
+ * Product with nested offers (returned by offers endpoint)
  */
-public class ProductDetails {
+public class ProductWithOffers {
     @JsonProperty("title")
     private String title;
 
@@ -37,7 +37,10 @@ public class ProductDetails {
     @JsonProperty("color")
     private String color;
 
-    public ProductDetails() {}
+    @JsonProperty("offers")
+    private List<Offer> offers;
+
+    public ProductWithOffers() {}
 
     public String getTitle() {
         return title;
@@ -119,29 +122,11 @@ public class ProductDetails {
         this.color = color;
     }
 
-    // Backward-compatible aliases
-
-    /** @deprecated Use getTitle() instead */
-    @Deprecated
-    public String getName() {
-        return title;
+    public List<Offer> getOffers() {
+        return offers;
     }
 
-    /** @deprecated Use getShopsavvy() instead */
-    @Deprecated
-    public String getProductId() {
-        return shopsavvy;
-    }
-
-    /** @deprecated Use getAmazon() instead */
-    @Deprecated
-    public String getAsin() {
-        return amazon;
-    }
-
-    /** @deprecated Use getImages() and get first item instead */
-    @Deprecated
-    public String getImageUrl() {
-        return images != null && !images.isEmpty() ? images.get(0) : null;
+    public void setOffers(List<Offer> offers) {
+        this.offers = offers;
     }
 }

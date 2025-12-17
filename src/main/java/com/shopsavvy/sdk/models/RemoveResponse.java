@@ -6,38 +6,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Response model for removal operations
  */
 public class RemoveResponse {
-    @JsonProperty("success")
-    private Boolean success;
-    
-    @JsonProperty("message")
-    private String message;
-    
-    @JsonProperty("identifier")
-    private String identifier;
-    
+    @JsonProperty("removed")
+    private Boolean removed;
+
     public RemoveResponse() {}
-    
-    public Boolean getSuccess() {
-        return success;
+
+    public RemoveResponse(Boolean removed) {
+        this.removed = removed;
     }
-    
-    public void setSuccess(Boolean success) {
-        this.success = success;
+
+    public Boolean getRemoved() {
+        return removed;
     }
-    
-    public String getMessage() {
-        return message;
-    }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
-    public String getIdentifier() {
-        return identifier;
-    }
-    
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+
+    public void setRemoved(Boolean removed) {
+        this.removed = removed;
     }
 }

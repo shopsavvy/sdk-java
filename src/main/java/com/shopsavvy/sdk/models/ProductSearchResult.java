@@ -1,31 +1,25 @@
 package com.shopsavvy.sdk.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 /**
- * Generic API response wrapper
+ * Product search result with pagination
  */
-public class ApiResponse<T> {
+public class ProductSearchResult {
     @JsonProperty("success")
     private Boolean success;
 
     @JsonProperty("data")
-    private T data;
+    private List<ProductDetails> data;
 
-    @JsonProperty("message")
-    private String message;
+    @JsonProperty("pagination")
+    private PaginationInfo pagination;
 
     @JsonProperty("meta")
     private ApiMeta meta;
 
-    public ApiResponse() {}
-
-    public ApiResponse(Boolean success, T data, String message, ApiMeta meta) {
-        this.success = success;
-        this.data = data;
-        this.message = message;
-        this.meta = meta;
-    }
+    public ProductSearchResult() {}
 
     public Boolean getSuccess() {
         return success;
@@ -35,20 +29,20 @@ public class ApiResponse<T> {
         this.success = success;
     }
 
-    public T getData() {
+    public List<ProductDetails> getData() {
         return data;
     }
 
-    public void setData(T data) {
+    public void setData(List<ProductDetails> data) {
         this.data = data;
     }
 
-    public String getMessage() {
-        return message;
+    public PaginationInfo getPagination() {
+        return pagination;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setPagination(PaginationInfo pagination) {
+        this.pagination = pagination;
     }
 
     public ApiMeta getMeta() {

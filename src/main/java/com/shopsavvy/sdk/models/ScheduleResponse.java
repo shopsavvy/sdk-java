@@ -6,49 +6,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Response model for scheduling operations
  */
 public class ScheduleResponse {
-    @JsonProperty("success")
-    private Boolean success;
-    
-    @JsonProperty("message")
-    private String message;
-    
-    @JsonProperty("identifier")
-    private String identifier;
-    
-    @JsonProperty("frequency")
-    private String frequency;
-    
+    @JsonProperty("scheduled")
+    private Boolean scheduled;
+
+    @JsonProperty("product_id")
+    private String productId;
+
     public ScheduleResponse() {}
-    
-    public Boolean getSuccess() {
-        return success;
+
+    public ScheduleResponse(Boolean scheduled, String productId) {
+        this.scheduled = scheduled;
+        this.productId = productId;
     }
-    
-    public void setSuccess(Boolean success) {
-        this.success = success;
+
+    public Boolean getScheduled() {
+        return scheduled;
     }
-    
-    public String getMessage() {
-        return message;
+
+    public void setScheduled(Boolean scheduled) {
+        this.scheduled = scheduled;
     }
-    
-    public void setMessage(String message) {
-        this.message = message;
+
+    public String getProductId() {
+        return productId;
     }
-    
-    public String getIdentifier() {
-        return identifier;
-    }
-    
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-    
-    public String getFrequency() {
-        return frequency;
-    }
-    
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 }

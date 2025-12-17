@@ -6,71 +6,59 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * API usage information model
  */
 public class UsageInfo {
-    @JsonProperty("credits_used")
-    private Integer creditsUsed;
-    
-    @JsonProperty("credits_remaining")
-    private Integer creditsRemaining;
-    
-    @JsonProperty("credits_limit")
-    private Integer creditsLimit;
-    
-    @JsonProperty("reset_date")
-    private String resetDate;
-    
-    @JsonProperty("current_period_start")
-    private String currentPeriodStart;
-    
-    @JsonProperty("current_period_end")
-    private String currentPeriodEnd;
-    
+    @JsonProperty("current_period")
+    private UsagePeriod currentPeriod;
+
+    @JsonProperty("usage_percentage")
+    private Double usagePercentage;
+
     public UsageInfo() {}
-    
+
+    public UsagePeriod getCurrentPeriod() {
+        return currentPeriod;
+    }
+
+    public void setCurrentPeriod(UsagePeriod currentPeriod) {
+        this.currentPeriod = currentPeriod;
+    }
+
+    public Double getUsagePercentage() {
+        return usagePercentage;
+    }
+
+    public void setUsagePercentage(Double usagePercentage) {
+        this.usagePercentage = usagePercentage;
+    }
+
+    // Backward-compatible methods
+
+    /** @deprecated Use getCurrentPeriod().getCreditsUsed() instead */
+    @Deprecated
     public Integer getCreditsUsed() {
-        return creditsUsed;
+        return currentPeriod != null ? currentPeriod.getCreditsUsed() : null;
     }
-    
-    public void setCreditsUsed(Integer creditsUsed) {
-        this.creditsUsed = creditsUsed;
-    }
-    
+
+    /** @deprecated Use getCurrentPeriod().getCreditsRemaining() instead */
+    @Deprecated
     public Integer getCreditsRemaining() {
-        return creditsRemaining;
+        return currentPeriod != null ? currentPeriod.getCreditsRemaining() : null;
     }
-    
-    public void setCreditsRemaining(Integer creditsRemaining) {
-        this.creditsRemaining = creditsRemaining;
+
+    /** @deprecated Use getCurrentPeriod().getCreditsLimit() instead */
+    @Deprecated
+    public Integer getCreditsTotal() {
+        return currentPeriod != null ? currentPeriod.getCreditsLimit() : null;
     }
-    
-    public Integer getCreditsLimit() {
-        return creditsLimit;
+
+    /** @deprecated Use getCurrentPeriod().getStartDate() instead */
+    @Deprecated
+    public String getBillingPeriodStart() {
+        return currentPeriod != null ? currentPeriod.getStartDate() : null;
     }
-    
-    public void setCreditsLimit(Integer creditsLimit) {
-        this.creditsLimit = creditsLimit;
-    }
-    
-    public String getResetDate() {
-        return resetDate;
-    }
-    
-    public void setResetDate(String resetDate) {
-        this.resetDate = resetDate;
-    }
-    
-    public String getCurrentPeriodStart() {
-        return currentPeriodStart;
-    }
-    
-    public void setCurrentPeriodStart(String currentPeriodStart) {
-        this.currentPeriodStart = currentPeriodStart;
-    }
-    
-    public String getCurrentPeriodEnd() {
-        return currentPeriodEnd;
-    }
-    
-    public void setCurrentPeriodEnd(String currentPeriodEnd) {
-        this.currentPeriodEnd = currentPeriodEnd;
+
+    /** @deprecated Use getCurrentPeriod().getEndDate() instead */
+    @Deprecated
+    public String getBillingPeriodEnd() {
+        return currentPeriod != null ? currentPeriod.getEndDate() : null;
     }
 }
