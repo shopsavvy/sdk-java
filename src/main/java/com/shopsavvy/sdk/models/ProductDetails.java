@@ -37,6 +37,33 @@ public class ProductDetails {
     @JsonProperty("color")
     private String color;
 
+    @JsonProperty("title_short")
+    private String titleShort;
+
+    @JsonProperty("slug")
+    private String slug;
+
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("categories")
+    private List<String> categories;
+
+    @JsonProperty("attributes")
+    private java.util.Map<String, String> attributes;
+
+    @JsonProperty("rating")
+    private java.util.Map<String, Object> rating;
+
+    @JsonProperty("score")
+    private java.util.Map<String, Object> score;
+
+    @JsonProperty("keywords")
+    private List<String> keywords;
+
+    @JsonProperty("identifiers")
+    private java.util.Map<String, Object> identifiers;
+
     public ProductDetails() {}
 
     public String getTitle() {
@@ -144,4 +171,14 @@ public class ProductDetails {
     public String getImageUrl() {
         return images != null && !images.isEmpty() ? images.get(0) : null;
     }
+
+    public String getTitleShort() { return titleShort; }
+    public String getSlug() { return slug; }
+    public String getDescription() { return description; }
+    public List<String> getCategories() { return categories; }
+    public java.util.Map<String, String> getAttributes() { return attributes; }
+    public java.util.Map<String, Object> getRating() { return rating; }
+    public java.util.Map<String, Object> getScore() { return score; }
+    public List<String> getKeywords() { return keywords; }
+    public java.util.Map<String, Object> getIdentifiers() { return identifiers; }
 }

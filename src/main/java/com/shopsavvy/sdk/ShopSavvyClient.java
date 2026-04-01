@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class ShopSavvyClient implements AutoCloseable {
 
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.1.0";
 
     private static final String DEFAULT_BASE_URL = "https://api.shopsavvy.com/v1";
     private static final Pattern API_KEY_PATTERN = Pattern.compile("^ss_(live|test)_[a-zA-Z0-9]+$");
@@ -430,6 +430,48 @@ public class ShopSavvyClient implements AutoCloseable {
             .build();
 
         return executeRequest(request, UsageInfo.class);
+    }
+
+    /**
+     * Browse current shopping deals
+     */
+    @NotNull
+    public java.util.Map<String, Object> getDeals(java.util.Map<String, String> params) throws ShopSavvyApiException {
+        StringBuilder urlBuilder = new StringBuilder(baseUrl + "/deals");
+        if (params != null && !params.isEmpty()) {
+            urlBuilder.append("?");
+            params.forEach((k, v) -> urlBuilder.append(urlEncode(k)).append("=").append(urlEncode(v)).append("&"));
+        }
+
+        Request request = new Request.Builder()
+            .url(urlBuilder.toString())
+            .get()
+            .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            String body = response.body().string();
+            return objectMapper.readValue(body, java.util.Map.class);
+        } catch (Exception e) {
+            throw new ShopSavvyApiException("Failed to get deals: " + e.getMessage(), 0);
+        }
+    }
+
+    /**
+     * Get TLDR review for a product
+     */
+    @NotNull
+    public java.util.Map<String, Object> getProductReview(String identifier) throws ShopSavvyApiException {
+        Request request = new Request.Builder()
+            .url(baseUrl + "/products/reviews?id=" + urlEncode(identifier))
+            .get()
+            .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            String body = response.body().string();
+            return objectMapper.readValue(body, java.util.Map.class);
+        } catch (Exception e) {
+            throw new ShopSavvyApiException("Failed to get product review: " + e.getMessage(), 0);
+        }
     }
 
     // MARK: - Private Methods
