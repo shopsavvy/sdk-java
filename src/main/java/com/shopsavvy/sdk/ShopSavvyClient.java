@@ -457,6 +457,48 @@ public class ShopSavvyClient implements AutoCloseable {
     }
 
     /**
+     * Look up multiple products at once (sync for <=20, async for >20)
+     */
+    @NotNull
+    public java.util.Map<String, Object> batchLookup(java.util.List<String> identifiers, java.util.List<String> include) throws ShopSavvyApiException {
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("identifiers", identifiers);
+        if (include != null && !include.isEmpty()) body.put("include", include);
+
+        Request request = new Request.Builder()
+            .url(baseUrl + "/products/batch")
+            .post(okhttp3.RequestBody.create(
+                okhttp3.MediaType.parse("application/json"),
+                objectMapper.writeValueAsString(body)))
+            .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            String responseBody = response.body().string();
+            return objectMapper.readValue(responseBody, java.util.Map.class);
+        } catch (Exception e) {
+            throw new ShopSavvyApiException("Failed to batch lookup: " + e.getMessage(), 0);
+        }
+    }
+
+    /**
+     * Poll for async batch job results
+     */
+    @NotNull
+    public java.util.Map<String, Object> getBatchStatus(String batchId) throws ShopSavvyApiException {
+        Request request = new Request.Builder()
+            .url(baseUrl + "/batch/" + urlEncode(batchId))
+            .get()
+            .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            String body = response.body().string();
+            return objectMapper.readValue(body, java.util.Map.class);
+        } catch (Exception e) {
+            throw new ShopSavvyApiException("Failed to get batch status: " + e.getMessage(), 0);
+        }
+    }
+
+    /**
      * Get TLDR review for a product
      */
     @NotNull
