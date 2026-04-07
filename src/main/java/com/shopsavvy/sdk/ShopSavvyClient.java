@@ -498,6 +498,47 @@ public class ShopSavvyClient implements AutoCloseable {
         }
     }
 
+    /** Create a webhook */
+    @NotNull
+    public java.util.Map<String, Object> createWebhook(String url, java.util.List<String> events) throws ShopSavvyApiException {
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("url", url);
+        body.put("events", events);
+        Request request = new Request.Builder().url(baseUrl + "/webhooks")
+            .post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), objectMapper.writeValueAsString(body))).build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            return objectMapper.readValue(response.body().string(), java.util.Map.class);
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+    }
+
+    /** List webhooks */
+    @NotNull
+    public java.util.Map<String, Object> listWebhooks() throws ShopSavvyApiException {
+        Request request = new Request.Builder().url(baseUrl + "/webhooks").get().build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            return objectMapper.readValue(response.body().string(), java.util.Map.class);
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+    }
+
+    /** Test a webhook */
+    @NotNull
+    public java.util.Map<String, Object> testWebhook(String webhookId) throws ShopSavvyApiException {
+        Request request = new Request.Builder().url(baseUrl + "/webhooks/" + urlEncode(webhookId) + "/test")
+            .post(okhttp3.RequestBody.create(null, new byte[0])).build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            return objectMapper.readValue(response.body().string(), java.util.Map.class);
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+    }
+
+    /** Delete a webhook */
+    @NotNull
+    public java.util.Map<String, Object> deleteWebhook(String webhookId) throws ShopSavvyApiException {
+        Request request = new Request.Builder().url(baseUrl + "/webhooks/" + urlEncode(webhookId)).delete().build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            return objectMapper.readValue(response.body().string(), java.util.Map.class);
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+    }
+
     /**
      * Get TLDR review for a product
      */
