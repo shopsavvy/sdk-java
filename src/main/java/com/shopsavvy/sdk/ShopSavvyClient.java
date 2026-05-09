@@ -452,12 +452,12 @@ public class ShopSavvyClient implements AutoCloseable {
             String body = response.body().string();
             return objectMapper.readValue(body, java.util.Map.class);
         } catch (Exception e) {
-            throw new ShopSavvyApiException("Failed to get deals: " + e.getMessage(), 0);
+            throw new ShopSavvyApiException("Failed to get deals: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Look up multiple products at once (sync for <=20, async for >20)
+     * Look up multiple products at once (sync for {@code <=20}, async for {@code >20})
      */
     @NotNull
     public java.util.Map<String, Object> batchLookup(java.util.List<String> identifiers, java.util.List<String> include) throws ShopSavvyApiException {
@@ -465,18 +465,19 @@ public class ShopSavvyClient implements AutoCloseable {
         body.put("identifiers", identifiers);
         if (include != null && !include.isEmpty()) body.put("include", include);
 
-        Request request = new Request.Builder()
-            .url(baseUrl + "/products/batch")
-            .post(okhttp3.RequestBody.create(
-                okhttp3.MediaType.parse("application/json"),
-                objectMapper.writeValueAsString(body)))
-            .build();
+        try {
+            String json = objectMapper.writeValueAsString(body);
+            Request request = new Request.Builder()
+                .url(baseUrl + "/products/batch")
+                .post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), json))
+                .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-            return objectMapper.readValue(responseBody, java.util.Map.class);
+            try (Response response = httpClient.newCall(request).execute()) {
+                String responseBody = response.body().string();
+                return objectMapper.readValue(responseBody, java.util.Map.class);
+            }
         } catch (Exception e) {
-            throw new ShopSavvyApiException("Failed to batch lookup: " + e.getMessage(), 0);
+            throw new ShopSavvyApiException("Failed to batch lookup: " + e.getMessage(), e);
         }
     }
 
@@ -494,7 +495,7 @@ public class ShopSavvyClient implements AutoCloseable {
             String body = response.body().string();
             return objectMapper.readValue(body, java.util.Map.class);
         } catch (Exception e) {
-            throw new ShopSavvyApiException("Failed to get batch status: " + e.getMessage(), 0);
+            throw new ShopSavvyApiException("Failed to get batch status: " + e.getMessage(), e);
         }
     }
 
@@ -504,11 +505,14 @@ public class ShopSavvyClient implements AutoCloseable {
         java.util.Map<String, Object> body = new java.util.HashMap<>();
         body.put("url", url);
         body.put("events", events);
-        Request request = new Request.Builder().url(baseUrl + "/webhooks")
-            .post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), objectMapper.writeValueAsString(body))).build();
-        try (Response response = httpClient.newCall(request).execute()) {
-            return objectMapper.readValue(response.body().string(), java.util.Map.class);
-        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+        try {
+            String json = objectMapper.writeValueAsString(body);
+            Request request = new Request.Builder().url(baseUrl + "/webhooks")
+                .post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), json)).build();
+            try (Response response = httpClient.newCall(request).execute()) {
+                return objectMapper.readValue(response.body().string(), java.util.Map.class);
+            }
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
     /** List webhooks */
@@ -517,7 +521,7 @@ public class ShopSavvyClient implements AutoCloseable {
         Request request = new Request.Builder().url(baseUrl + "/webhooks").get().build();
         try (Response response = httpClient.newCall(request).execute()) {
             return objectMapper.readValue(response.body().string(), java.util.Map.class);
-        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
     /** Test a webhook */
@@ -527,7 +531,7 @@ public class ShopSavvyClient implements AutoCloseable {
             .post(okhttp3.RequestBody.create(null, new byte[0])).build();
         try (Response response = httpClient.newCall(request).execute()) {
             return objectMapper.readValue(response.body().string(), java.util.Map.class);
-        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
     /** Delete a webhook */
@@ -536,7 +540,7 @@ public class ShopSavvyClient implements AutoCloseable {
         Request request = new Request.Builder().url(baseUrl + "/webhooks/" + urlEncode(webhookId)).delete().build();
         try (Response response = httpClient.newCall(request).execute()) {
             return objectMapper.readValue(response.body().string(), java.util.Map.class);
-        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), 0); }
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
     /**
@@ -553,7 +557,7 @@ public class ShopSavvyClient implements AutoCloseable {
             String body = response.body().string();
             return objectMapper.readValue(body, java.util.Map.class);
         } catch (Exception e) {
-            throw new ShopSavvyApiException("Failed to get product review: " + e.getMessage(), 0);
+            throw new ShopSavvyApiException("Failed to get product review: " + e.getMessage(), e);
         }
     }
 
