@@ -534,6 +534,30 @@ public class ShopSavvyClient implements AutoCloseable {
         } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
+    /**
+     * Update a webhook. Pass null for any field you do not want to change. At
+     * least one of url, events, or isActive must be non-null.
+     */
+    @NotNull
+    public java.util.Map<String, Object> updateWebhook(String webhookId, String url, java.util.List<String> events, Boolean isActive) throws ShopSavvyApiException {
+        if (url == null && events == null && isActive == null) {
+            throw new ShopSavvyApiException("updateWebhook requires at least one of url, events, or isActive");
+        }
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        if (url != null) body.put("url", url);
+        if (events != null) body.put("events", events);
+        if (isActive != null) body.put("is_active", isActive);
+        try {
+            String json = objectMapper.writeValueAsString(body);
+            Request request = new Request.Builder().url(baseUrl + "/webhooks/" + urlEncode(webhookId))
+                .put(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), json)).build();
+            try (Response response = httpClient.newCall(request).execute()) {
+                return objectMapper.readValue(response.body().string(), java.util.Map.class);
+            }
+        } catch (ShopSavvyApiException e) { throw e; }
+        catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
+    }
+
     /** Delete a webhook */
     @NotNull
     public java.util.Map<String, Object> deleteWebhook(String webhookId) throws ShopSavvyApiException {
