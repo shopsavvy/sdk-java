@@ -10,6 +10,11 @@ public class TLDRReview {
     @JsonProperty("pros") private List<String> pros;
     @JsonProperty("cons") private List<String> cons;
     @JsonProperty("bottom_line") private String bottomLine;
+    /**
+     * Expert quality scores on a 0-1 scale (multiply by 10 or 100 for display):
+     * "overall", "customer", "professional", plus an "aspects" map keyed by
+     * free-form aspect names from the product's professional reviews.
+     */
     @JsonProperty("scores") private Map<String, Object> scores;
 
     public String getSlug() { return slug; }
