@@ -55,6 +55,11 @@ public class ProductDetails {
     @JsonProperty("rating")
     private java.util.Map<String, Object> rating;
 
+    /**
+     * Expert quality scores on a 0-1 scale (multiply by 10 or 100 for display):
+     * "overall", "customer", "professional", plus an "aspects" map keyed by
+     * free-form aspect names from the product's professional reviews.
+     */
     @JsonProperty("score")
     private java.util.Map<String, Object> score;
 
