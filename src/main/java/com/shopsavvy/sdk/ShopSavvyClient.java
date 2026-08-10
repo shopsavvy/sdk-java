@@ -312,8 +312,12 @@ public class ShopSavvyClient implements AutoCloseable {
     @NotNull
     public ApiResponse<List<OfferWithHistory>> getPriceHistory(@NotNull String identifier, @NotNull String startDate, @NotNull String endDate, @Nullable String retailer, @Nullable String format) throws ShopSavvyApiException {
         StringBuilder urlBuilder = new StringBuilder(baseUrl + "/products/offers/history?ids=" + urlEncode(identifier));
-        urlBuilder.append("&start_date=").append(startDate);
-        urlBuilder.append("&end_date=").append(endDate);
+        // Wire params are "start"/"end" — what GET /products/offers/history
+        // reads, and what the OpenAPI spec and public docs document. The old
+        // "start_date"/"end_date" names came from the MCP tool's argument
+        // convention (a different interface entirely) and 400'd every call.
+        urlBuilder.append("&start=").append(startDate);
+        urlBuilder.append("&end=").append(endDate);
         if (retailer != null) {
             urlBuilder.append("&retailer=").append(urlEncode(retailer));
         }
