@@ -4,7 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * Offer with price history
+ * Offer returned by {@code getPriceHistory()}, i.e. one carrying its {@code history} array.
+ *
+ * <p>This used to bind the list to a {@code price_history} JSON property. The API has never
+ * sent a key by that name — history has always arrived under {@code history} — so
+ * {@code getPriceHistory()} returned null for every caller, on every successful response
+ * (ShopSavvy prospector-audit s28-t2-2). The accessor pair is renamed with the property so a
+ * consumer cannot keep reading the dead one by accident.
  */
 public class OfferWithHistory {
     @JsonProperty("id")
@@ -34,8 +40,8 @@ public class OfferWithHistory {
     @JsonProperty("timestamp")
     private String timestamp;
 
-    @JsonProperty("price_history")
-    private List<PriceHistoryEntry> priceHistory;
+    @JsonProperty("history")
+    private List<PriceHistoryEntry> history;
 
     public OfferWithHistory() {}
 
@@ -111,11 +117,11 @@ public class OfferWithHistory {
         this.timestamp = timestamp;
     }
 
-    public List<PriceHistoryEntry> getPriceHistory() {
-        return priceHistory;
+    public List<PriceHistoryEntry> getHistory() {
+        return history;
     }
 
-    public void setPriceHistory(List<PriceHistoryEntry> priceHistory) {
-        this.priceHistory = priceHistory;
+    public void setHistory(List<PriceHistoryEntry> history) {
+        this.history = history;
     }
 }
