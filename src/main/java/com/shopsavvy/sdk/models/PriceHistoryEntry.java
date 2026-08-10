@@ -19,14 +19,23 @@ public class PriceHistoryEntry {
     @JsonProperty("price")
     private Double price;
 
+    /**
+     * ISO 4217 code the price is denominated in. Null on an archived point with no recorded
+     * currency — never assume a missing value means USD
+     * (ShopSavvy prospector-audit d5-t3-1).
+     */
+    @JsonProperty("currency")
+    private String currency;
+
     @JsonProperty("availability")
     private String availability;
 
     public PriceHistoryEntry() {}
 
-    public PriceHistoryEntry(String timestamp, Double price, String availability) {
+    public PriceHistoryEntry(String timestamp, Double price, String currency, String availability) {
         this.timestamp = timestamp;
         this.price = price;
+        this.currency = currency;
         this.availability = availability;
     }
 
@@ -44,6 +53,14 @@ public class PriceHistoryEntry {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getAvailability() {
