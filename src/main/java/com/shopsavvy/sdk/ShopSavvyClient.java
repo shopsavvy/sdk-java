@@ -290,11 +290,11 @@ public class ShopSavvyClient implements AutoCloseable {
      * @param identifier Product identifier
      * @param startDate Start date (YYYY-MM-DD format)
      * @param endDate End date (YYYY-MM-DD format)
-     * @return Offers with price history
+     * @return One entry per product found, each with its offers and each offer's price history (newest first)
      * @throws ShopSavvyApiException if the API request fails
      */
     @NotNull
-    public ApiResponse<List<OfferWithHistory>> getPriceHistory(@NotNull String identifier, @NotNull String startDate, @NotNull String endDate) throws ShopSavvyApiException {
+    public ApiResponse<List<ProductWithOfferHistory>> getPriceHistory(@NotNull String identifier, @NotNull String startDate, @NotNull String endDate) throws ShopSavvyApiException {
         return getPriceHistory(identifier, startDate, endDate, null, null);
     }
 
@@ -306,11 +306,11 @@ public class ShopSavvyClient implements AutoCloseable {
      * @param endDate End date (YYYY-MM-DD format)
      * @param retailer Optional retailer to filter by
      * @param format Response format ('json' or 'csv')
-     * @return Offers with price history
+     * @return One entry per product found, each with its offers and each offer's price history (newest first)
      * @throws ShopSavvyApiException if the API request fails
      */
     @NotNull
-    public ApiResponse<List<OfferWithHistory>> getPriceHistory(@NotNull String identifier, @NotNull String startDate, @NotNull String endDate, @Nullable String retailer, @Nullable String format) throws ShopSavvyApiException {
+    public ApiResponse<List<ProductWithOfferHistory>> getPriceHistory(@NotNull String identifier, @NotNull String startDate, @NotNull String endDate, @Nullable String retailer, @Nullable String format) throws ShopSavvyApiException {
         StringBuilder urlBuilder = new StringBuilder(baseUrl + "/products/offers/history?ids=" + urlEncode(identifier));
         // Wire params are "start"/"end" — what GET /products/offers/history
         // reads, and what the OpenAPI spec and public docs document. The old
@@ -330,7 +330,7 @@ public class ShopSavvyClient implements AutoCloseable {
             .get()
             .build();
 
-        return executeRequestForList(request, OfferWithHistory.class);
+        return executeRequestForList(request, ProductWithOfferHistory.class);
     }
 
     // MARK: - Monitoring
