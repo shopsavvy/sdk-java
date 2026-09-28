@@ -210,6 +210,30 @@ for (ProductWithOfferHistory product : response.getData()) {
 System.out.println("Credits used: " + response.getMeta().getCreditsUsed());
 ```
 
+### Scheduled Refreshes
+
+Scheduling sends `PUT /products/scheduled?ids=…&schedule=…[&retailer=…]` and unscheduling sends
+`DELETE /products/scheduled?ids=…`. Every call returns the scheduled products with their
+`schedule` (and `retailer`, when limited to one).
+
+```java
+// One product, every retailer
+ApiResponse<List<ScheduledProduct>> scheduled = client.scheduleProductMonitoring("611247373064", "daily");
+
+// Several products at once, limited to one retailer
+client.scheduleProductsMonitoring(Arrays.asList("611247373064", "611247369449"), "hourly", "amazon.com");
+
+// What is currently scheduled
+for (ScheduledProduct p : client.getScheduledProducts().getData()) {
+    System.out.println(p.getTitle() + ": " + p.getSchedule()
+        + (p.getRetailer() != null ? " at " + p.getRetailer() : " at all retailers"));
+}
+
+// Stop refreshing (the response has success + message, no data)
+client.removeProductFromSchedule("611247373064");
+client.removeProductsFromSchedule(Arrays.asList("611247373064", "611247369449"));
+```
+
 ### Real-Time Pricing
 
 #### Spring Boot REST API Integration
