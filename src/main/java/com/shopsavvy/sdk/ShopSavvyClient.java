@@ -558,8 +558,7 @@ public class ShopSavvyClient implements AutoCloseable {
             try (Response response = httpClient.newCall(request).execute()) {
                 return objectMapper.readValue(response.body().string(), java.util.Map.class);
             }
-        } catch (ShopSavvyApiException e) { throw e; }
-        catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
+        } catch (Exception e) { throw new ShopSavvyApiException("Failed: " + e.getMessage(), e); }
     }
 
     /** Delete a webhook */
