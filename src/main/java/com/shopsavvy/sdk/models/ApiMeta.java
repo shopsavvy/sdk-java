@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * API response metadata containing credit usage info
  */
 public class ApiMeta {
+    /** Server-side request id; quote it when contacting support. */
+    @JsonProperty("request_id")
+    private String requestId;
+
     @JsonProperty("credits_used")
     private Integer creditsUsed;
 
@@ -21,6 +25,14 @@ public class ApiMeta {
         this.creditsUsed = creditsUsed;
         this.creditsRemaining = creditsRemaining;
         this.rateLimitRemaining = rateLimitRemaining;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public Integer getCreditsUsed() {
