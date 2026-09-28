@@ -15,7 +15,7 @@ Official Java SDK for the [ShopSavvy Data API](https://shopsavvy.com/data). Acce
 <!-- <dependency>
     <groupId>com.shopsavvy</groupId>
     <artifactId>shopsavvy-sdk-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.4.0</version>
 </dependency> -->
 
 // Use in Java/Spring Boot:
@@ -64,7 +64,7 @@ public class QuickExample {
     <dependency>
         <groupId>com.shopsavvy</groupId>
         <artifactId>shopsavvy-sdk-java</artifactId>
-        <version>1.0.0</version>
+        <version>1.4.0</version>
     </dependency>
     
     <!-- For Spring Boot projects -->
@@ -87,7 +87,7 @@ public class QuickExample {
 
 ```gradle
 dependencies {
-    implementation 'com.shopsavvy:shopsavvy-sdk-java:1.0.0'
+    implementation 'com.shopsavvy:shopsavvy-sdk-java:1.4.0'
     
     // For Spring Boot projects
     implementation 'org.springframework.boot:spring-boot-starter-web:2.7.14'
@@ -184,6 +184,32 @@ for (int i = 0; i < identifiers.size(); i++) {
 }
 ```
 
+### Price History
+
+`getPriceHistory` calls `GET /products/offers/history` with `start`/`end` dates (`YYYY-MM-DD`,
+at most 366 days apart). The response has one entry **per product** — the same product fields
+as `getProductDetails` — each with its `offers`, and each offer with its own `history` points,
+newest first. An offer with no recorded history (eBay listings, for example) has an empty list.
+
+```java
+ApiResponse<List<ProductWithOfferHistory>> response =
+    client.getPriceHistory("611247373064", "2024-01-01", "2024-01-31");
+// Optional retailer filter: client.getPriceHistory(id, start, end, "amazon.com", null)
+
+for (ProductWithOfferHistory product : response.getData()) {
+    System.out.println(product.getTitle() + " (" + product.getBarcode() + ")");
+    for (OfferWithHistory offer : product.getOffers()) {
+        System.out.println("  " + offer.getRetailer() + " now " + offer.getPrice() + " " + offer.getCurrency());
+        for (PriceHistoryEntry point : offer.getHistory()) {
+            // currency may be null on an archived point; availability is null when unknown
+            System.out.println("    " + point.getTimestamp() + "  " + point.getPrice()
+                + " " + point.getCurrency() + "  " + point.getAvailability());
+        }
+    }
+}
+System.out.println("Credits used: " + response.getMeta().getCreditsUsed());
+```
+
 ### Real-Time Pricing
 
 #### Spring Boot REST API Integration
@@ -212,13 +238,13 @@ public class ProductController {
     }
     
     @GetMapping("/{identifier}/history")
-    public ResponseEntity<List<OfferWithHistory>> getPriceHistory(
+    public ResponseEntity<List<ProductWithOfferHistory>> getPriceHistory(
         @PathVariable String identifier,
         @RequestParam String startDate,
         @RequestParam String endDate) {
         
         try {
-            List<OfferWithHistory> history = productService.getPriceHistory(identifier, startDate, endDate);
+            List<ProductWithOfferHistory> history = productService.getPriceHistory(identifier, startDate, endDate);
             return ResponseEntity.ok(history);
         } catch (ShopSavvyApiException e) {
             return ResponseEntity.status(500).body(null);
@@ -295,8 +321,8 @@ public class ProductService {
         );
     }
     
-    public List<OfferWithHistory> getPriceHistory(String identifier, String startDate, String endDate) throws ShopSavvyApiException {
-        ApiResponse<List<OfferWithHistory>> response = client.getPriceHistory(identifier, startDate, endDate);
+    public List<ProductWithOfferHistory> getPriceHistory(String identifier, String startDate, String endDate) throws ShopSavvyApiException {
+        ApiResponse<List<ProductWithOfferHistory>> response = client.getPriceHistory(identifier, startDate, endDate);
         return response.getData();
     }
     
