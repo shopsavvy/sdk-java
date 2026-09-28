@@ -1,6 +1,6 @@
 # ShopSavvy Data API - Java SDK
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.shopsavvy/shopsavvy-sdk-java.svg)](https://search.maven.org/artifact/com.shopsavvy/shopsavvy-sdk-java)
+[![Maven Central](https://img.shields.io/maven-central/v/com.shopsavvy/shopsavvy-sdk.svg)](https://search.maven.org/artifact/com.shopsavvy/shopsavvy-sdk)
 [![Java](https://img.shields.io/badge/Java-8+-blue.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.5+-green.svg)](https://spring.io/projects/spring-boot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,7 +14,7 @@ Official Java SDK for the [ShopSavvy Data API](https://shopsavvy.com/data). Acce
 <!-- Add to pom.xml: -->
 <!-- <dependency>
     <groupId>com.shopsavvy</groupId>
-    <artifactId>shopsavvy-sdk-java</artifactId>
+    <artifactId>shopsavvy-sdk</artifactId>
     <version>1.4.0</version>
 </dependency> -->
 
@@ -63,7 +63,7 @@ public class QuickExample {
 <dependencies>
     <dependency>
         <groupId>com.shopsavvy</groupId>
-        <artifactId>shopsavvy-sdk-java</artifactId>
+        <artifactId>shopsavvy-sdk</artifactId>
         <version>1.4.0</version>
     </dependency>
     
@@ -87,7 +87,7 @@ public class QuickExample {
 
 ```gradle
 dependencies {
-    implementation 'com.shopsavvy:shopsavvy-sdk-java:1.4.0'
+    implementation 'com.shopsavvy:shopsavvy-sdk:1.4.0'
     
     // For Spring Boot projects
     implementation 'org.springframework.boot:spring-boot-starter-web:2.7.14'
@@ -213,12 +213,18 @@ System.out.println("Credits used: " + response.getMeta().getCreditsUsed());
 ### Scheduled Refreshes
 
 Scheduling sends `PUT /products/scheduled?ids=…&schedule=…[&retailer=…]` and unscheduling sends
-`DELETE /products/scheduled?ids=…`. Every call returns the scheduled products with their
-`schedule` (and `retailer`, when limited to one).
+`DELETE /products/scheduled?ids=…`. Scheduling and listing return `ScheduledProduct`s — the
+full product fields plus `getSchedule()` and `getRetailer()` (null when the schedule covers every
+retailer; on the list, `getSchedule()` is also null for an interval the Data API has no label for).
+Unscheduling returns only `getSuccess()`, `getMessage()` and `getMeta()`, with no data.
 
 ```java
 // One product, every retailer
 ApiResponse<List<ScheduledProduct>> scheduled = client.scheduleProductMonitoring("611247373064", "daily");
+for (ScheduledProduct p : scheduled.getData()) {
+    System.out.println(p.getShopsavvy() + " " + p.getTitle() + " -> " + p.getSchedule());
+}
+System.out.println("Credits used: " + scheduled.getMeta().getCreditsUsed());
 
 // Several products at once, limited to one retailer
 client.scheduleProductsMonitoring(Arrays.asList("611247373064", "611247369449"), "hourly", "amazon.com");
@@ -230,7 +236,8 @@ for (ScheduledProduct p : client.getScheduledProducts().getData()) {
 }
 
 // Stop refreshing (the response has success + message, no data)
-client.removeProductFromSchedule("611247373064");
+ApiResponse<Void> removed = client.removeProductFromSchedule("611247373064");
+System.out.println(removed.getMessage()); // "Products successfully removed from schedule"
 client.removeProductsFromSchedule(Arrays.asList("611247373064", "611247369449"));
 ```
 
@@ -1312,7 +1319,7 @@ public class UsageInfo {
 - **[ShopSavvy Data API Documentation](https://shopsavvy.com/data/documentation)** - Complete API reference
 - **[API Dashboard](https://shopsavvy.com/data/dashboard)** - Manage your API keys and usage
 - **[GitHub Repository](https://github.com/shopsavvy/sdk-java)** - Source code and issues
-- **[Maven Central](https://search.maven.org/artifact/com.shopsavvy/shopsavvy-sdk-java)** - Package releases
+- **[Maven Central](https://search.maven.org/artifact/com.shopsavvy/shopsavvy-sdk)** - Package releases
 - **[Spring Boot Documentation](https://spring.io/projects/spring-boot)** - Spring Boot framework guide
 - **[Java Documentation](https://docs.oracle.com/en/java/)** - Java language reference
 - **[Support](mailto:business@shopsavvy.com)** - Get help from our team
