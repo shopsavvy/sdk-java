@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class ShopSavvyClient implements AutoCloseable {
 
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.4.0";
 
     private static final String DEFAULT_BASE_URL = "https://api.shopsavvy.com/v1";
     private static final Pattern API_KEY_PATTERN = Pattern.compile("^ss_(live|test)_[a-zA-Z0-9]+$");
