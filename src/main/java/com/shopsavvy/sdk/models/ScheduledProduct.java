@@ -3,51 +3,38 @@ package com.shopsavvy.sdk.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Scheduled product model
+ * A product scheduled for regular refresh, as returned by {@code scheduleProductMonitoring()},
+ * {@code scheduleProductsMonitoring()} and {@code getScheduledProducts()}.
+ *
+ * <p>The API returns the same product fields as {@code GET /products} (title, shopsavvy,
+ * barcode, amazon, brand, images, …) plus {@code schedule} ({@code "hourly"}, {@code "daily"}
+ * or {@code "weekly"}) and, when the schedule is limited to one retailer, {@code retailer}.
+ *
+ * <p>This model used to declare {@code product_id}, {@code identifier}, {@code frequency},
+ * {@code created_at} and {@code last_refreshed} — keys the API has never sent — so every one of
+ * them read null. {@code getFrequency()} is kept as a deprecated alias for {@code getSchedule()};
+ * {@code getProductId()} (inherited) returns the ShopSavvy product id.
  */
-public class ScheduledProduct {
-    @JsonProperty("product_id")
-    private String productId;
+public class ScheduledProduct extends ProductDetails {
+    /**
+     * Refresh interval: "hourly", "daily" or "weekly". Null for a product scheduled at an
+     * interval the Data API has no label for (e.g. one set up through ShopSavvy Business).
+     */
+    @JsonProperty("schedule")
+    private String schedule;
 
-    @JsonProperty("identifier")
-    private String identifier;
-
-    @JsonProperty("frequency")
-    private String frequency;
-
+    /** Retailer domain the schedule is limited to; null when all retailers are refreshed. */
     @JsonProperty("retailer")
     private String retailer;
 
-    @JsonProperty("created_at")
-    private String createdAt;
-
-    @JsonProperty("last_refreshed")
-    private String lastRefreshed;
-
     public ScheduledProduct() {}
 
-    public String getProductId() {
-        return productId;
+    public String getSchedule() {
+        return schedule;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
-    public String getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
+    public void setSchedule(String schedule) {
+        this.schedule = schedule;
     }
 
     public String getRetailer() {
@@ -58,19 +45,9 @@ public class ScheduledProduct {
         this.retailer = retailer;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getLastRefreshed() {
-        return lastRefreshed;
-    }
-
-    public void setLastRefreshed(String lastRefreshed) {
-        this.lastRefreshed = lastRefreshed;
+    /** @deprecated Use getSchedule() instead */
+    @Deprecated
+    public String getFrequency() {
+        return schedule;
     }
 }

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -334,46 +335,76 @@ public class ShopSavvyClient implements AutoCloseable {
     }
 
     // MARK: - Monitoring
+    //
+    // The schedule endpoints read ONLY query parameters: PUT /products/scheduled takes
+    // ids (comma-separated), schedule and optional retailer; DELETE /products/scheduled takes
+    // ids. Earlier versions POSTed / DELETEd a JSON body ({identifier, frequency, retailer}) to
+    // /products/schedule. The server ignores request bodies here, so it saw no ids and no
+    // schedule and rejected every call with a 4xx.
 
     /**
-     * Schedule product monitoring
+     * Schedule a product for regular refresh at every retailer.
      *
      * @param identifier Product identifier
      * @param frequency How often to refresh ('hourly', 'daily', 'weekly')
-     * @return Scheduling confirmation
+     * @return The scheduled product(s), each with its schedule
      * @throws ShopSavvyApiException if the API request fails
      */
     @NotNull
-    public ApiResponse<ScheduleResponse> scheduleProductMonitoring(@NotNull String identifier, @NotNull String frequency) throws ShopSavvyApiException {
-        return scheduleProductMonitoring(identifier, frequency, null);
+    public ApiResponse<List<ScheduledProduct>> scheduleProductMonitoring(@NotNull String identifier, @NotNull String frequency) throws ShopSavvyApiException {
+        return scheduleProductsMonitoring(Collections.singletonList(identifier), frequency, null);
     }
 
     /**
-     * Schedule product monitoring
+     * Schedule a product for regular refresh.
      *
      * @param identifier Product identifier
      * @param frequency How often to refresh ('hourly', 'daily', 'weekly')
-     * @param retailer Optional retailer to monitor
-     * @return Scheduling confirmation
+     * @param retailer Optional retailer domain (e.g. "amazon.com") to limit refreshes to
+     * @return The scheduled product(s), each with its schedule and retailer
      * @throws ShopSavvyApiException if the API request fails
      */
     @NotNull
-    public ApiResponse<ScheduleResponse> scheduleProductMonitoring(@NotNull String identifier, @NotNull String frequency, @Nullable String retailer) throws ShopSavvyApiException {
-        ScheduleRequest scheduleRequest = new ScheduleRequest(identifier, frequency, retailer);
+    public ApiResponse<List<ScheduledProduct>> scheduleProductMonitoring(@NotNull String identifier, @NotNull String frequency, @Nullable String retailer) throws ShopSavvyApiException {
+        return scheduleProductsMonitoring(Collections.singletonList(identifier), frequency, retailer);
+    }
 
-        try {
-            String json = objectMapper.writeValueAsString(scheduleRequest);
-            RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
+    /**
+     * Schedule several products for regular refresh at every retailer in one request.
+     *
+     * @param identifiers Product identifiers
+     * @param frequency How often to refresh ('hourly', 'daily', 'weekly')
+     * @return The scheduled products, each with its schedule
+     * @throws ShopSavvyApiException if the API request fails
+     */
+    @NotNull
+    public ApiResponse<List<ScheduledProduct>> scheduleProductsMonitoring(@NotNull List<String> identifiers, @NotNull String frequency) throws ShopSavvyApiException {
+        return scheduleProductsMonitoring(identifiers, frequency, null);
+    }
 
-            Request request = new Request.Builder()
-                .url(baseUrl + "/products/schedule")
-                .post(body)
-                .build();
-
-            return executeRequest(request, ScheduleResponse.class);
-        } catch (IOException e) {
-            throw new ShopSavvyApiException("Failed to serialize request", e);
+    /**
+     * Schedule several products for regular refresh in one request.
+     *
+     * @param identifiers Product identifiers
+     * @param frequency How often to refresh ('hourly', 'daily', 'weekly')
+     * @param retailer Optional retailer domain (e.g. "amazon.com") to limit refreshes to
+     * @return The scheduled products, each with its schedule and retailer
+     * @throws ShopSavvyApiException if the API request fails
+     */
+    @NotNull
+    public ApiResponse<List<ScheduledProduct>> scheduleProductsMonitoring(@NotNull List<String> identifiers, @NotNull String frequency, @Nullable String retailer) throws ShopSavvyApiException {
+        StringBuilder urlBuilder = new StringBuilder(baseUrl + "/products/scheduled?ids=" + urlEncode(String.join(",", identifiers)));
+        urlBuilder.append("&schedule=").append(urlEncode(frequency));
+        if (retailer != null) {
+            urlBuilder.append("&retailer=").append(urlEncode(retailer));
         }
+
+        Request request = new Request.Builder()
+            .url(urlBuilder.toString())
+            .put(RequestBody.create(new byte[0], null))
+            .build();
+
+        return executeRequestForList(request, ScheduledProduct.class);
     }
 
     /**
@@ -393,29 +424,32 @@ public class ShopSavvyClient implements AutoCloseable {
     }
 
     /**
-     * Remove product from monitoring schedule
+     * Stop refreshing a product.
      *
      * @param identifier Product identifier to remove
-     * @return Removal confirmation
+     * @return Confirmation; the API sends success and message, with no data
      * @throws ShopSavvyApiException if the API request fails
      */
     @NotNull
-    public ApiResponse<RemoveResponse> removeProductFromSchedule(@NotNull String identifier) throws ShopSavvyApiException {
-        RemoveRequest removeRequest = new RemoveRequest(identifier);
+    public ApiResponse<Void> removeProductFromSchedule(@NotNull String identifier) throws ShopSavvyApiException {
+        return removeProductsFromSchedule(Collections.singletonList(identifier));
+    }
 
-        try {
-            String json = objectMapper.writeValueAsString(removeRequest);
-            RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
+    /**
+     * Stop refreshing several products in one request.
+     *
+     * @param identifiers Product identifiers to remove
+     * @return Confirmation; the API sends success and message, with no data
+     * @throws ShopSavvyApiException if the API request fails
+     */
+    @NotNull
+    public ApiResponse<Void> removeProductsFromSchedule(@NotNull List<String> identifiers) throws ShopSavvyApiException {
+        Request request = new Request.Builder()
+            .url(baseUrl + "/products/scheduled?ids=" + urlEncode(String.join(",", identifiers)))
+            .delete()
+            .build();
 
-            Request request = new Request.Builder()
-                .url(baseUrl + "/products/schedule")
-                .delete(body)
-                .build();
-
-            return executeRequest(request, RemoveResponse.class);
-        } catch (IOException e) {
-            throw new ShopSavvyApiException("Failed to serialize request", e);
-        }
+        return executeRequest(request, Void.class);
     }
 
     // MARK: - Usage
