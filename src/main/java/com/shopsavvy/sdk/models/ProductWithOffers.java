@@ -40,6 +40,10 @@ public class ProductWithOffers {
     @JsonProperty("offers")
     private List<Offer> offers;
 
+    /** User-collected in-store prices from shoppers' scanned receipts; empty when none are on file. */
+    @JsonProperty("in_store_prices")
+    private List<InStorePrice> inStorePrices = new java.util.ArrayList<>();
+
     public ProductWithOffers() {}
 
     public String getTitle() {
@@ -128,5 +132,13 @@ public class ProductWithOffers {
 
     public void setOffers(List<Offer> offers) {
         this.offers = offers;
+    }
+
+    public List<InStorePrice> getInStorePrices() {
+        return inStorePrices;
+    }
+
+    public void setInStorePrices(List<InStorePrice> inStorePrices) {
+        this.inStorePrices = inStorePrices == null ? new java.util.ArrayList<>() : inStorePrices;
     }
 }

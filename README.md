@@ -8,6 +8,17 @@
 
 Official Java SDK for the [ShopSavvy Data API](https://shopsavvy.com/data). Access comprehensive product data, real-time pricing, and historical price trends across **tens of thousands of retailers** and **30M+ products**. Built for **enterprise Java**, **Spring Boot**, **Android**, and **microservices** architectures.
 
+### In-Store Prices (user-collected)
+
+Each product from the current-offers call also carries `in_store_prices`: shelf prices physical stores charged, read from receipts ShopSavvy app users scanned. Every entry is labeled `source: "user-collected"` and has the retailer, the store's address and coordinates, the price and the receipt date (`observed_on`). It is a price on that day, not current stock, and says nothing about the shopper. Empty when none are on file.
+
+```java
+ApiResponse<List<ProductWithOffers>> result = client.getCurrentOffers("011110838360");
+for (InStorePrice inStore : result.getData().get(0).getInStorePrices()) {
+    System.out.printf("%s (%s): $%.2f on %s%n", inStore.getRetailer(), inStore.getStore().getAddress(), inStore.getPrice(), inStore.getObservedOn());
+}
+```
+
 ## ⚡ 30-Second Quick Start
 
 ```java
@@ -15,7 +26,7 @@ Official Java SDK for the [ShopSavvy Data API](https://shopsavvy.com/data). Acce
 <!-- <dependency>
     <groupId>com.shopsavvy</groupId>
     <artifactId>shopsavvy-sdk</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 </dependency> -->
 
 // Use in Java/Spring Boot:
@@ -64,7 +75,7 @@ public class QuickExample {
     <dependency>
         <groupId>com.shopsavvy</groupId>
         <artifactId>shopsavvy-sdk</artifactId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
     </dependency>
     
     <!-- For Spring Boot projects -->
